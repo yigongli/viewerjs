@@ -8,6 +8,7 @@
   },
   "main": [
     "./dist/viewer.js",
+    "./dist/jquery-viewer.js",
     "./dist/viewer.min.css"
   ],
   "_source": "https://github.com/yigongli/viewerjs.git"
