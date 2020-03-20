@@ -1,7 +1,7 @@
 {
   "name": "bkm-viewer",
   "homepage": "https://github.com/yigongli/viewerjs",
-  "description": "bkm viewerjs library 1.2.0",
+  "description": "bkm viewerjs library 1.5.0",
   "license": "MIT",
   "dependencies": {
     "jquery": "~2.1.4"
