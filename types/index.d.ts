@@ -36,6 +36,7 @@ declare namespace Viewer {
   export interface Options {
     backdrop?: boolean | string;
     button?: boolean;
+    className?: string;
     container?: string | Element;
     filter?: Function;
     fullscreen?: boolean;
@@ -100,6 +101,8 @@ declare class Viewer {
   view(index?: number): Viewer;
   zoom(ratio: number, hasTooltip?: boolean): Viewer;
   zoomTo(ratio: number, hasTooltip?: boolean): Viewer;
+  static noConflict(): Viewer;
+  static setDefaults(options: Viewer.Options): void;
 }
 
 declare module 'viewerjs' {

@@ -2,7 +2,8 @@ import {
   CLASS_HIDE_MD_DOWN,
   CLASS_HIDE_SM_DOWN,
   CLASS_HIDE_XS_DOWN,
-  IN_BROWSER,
+  IS_BROWSER,
+  REGEXP_SPACES,
   WINDOW,
 } from './constants';
 
@@ -64,7 +65,7 @@ export function isPlainObject(value) {
     const { prototype } = constructor;
 
     return constructor && prototype && hasOwnProperty.call(prototype, 'isPrototypeOf');
-  } catch (e) {
+  } catch (error) {
     return false;
   }
 }
@@ -145,12 +146,30 @@ export function setStyle(element, styles) {
 }
 
 /**
+ * Escape a string for using in HTML.
+ * @param {String} value - The string to escape.
+ * @returns {String} Returns the escaped string.
+ */
+export function escapeHTMLEntities(value) {
+  return isString(value) ? value
+    .replace(/&(?!amp;|quot;|#39;|lt;|gt;)/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;') : value;
+}
+
+/**
  * Check if the given element has a special class.
  * @param {Element} element - The element to check.
  * @param {string} value - The class to search.
  * @returns {boolean} Returns `true` if the special class was found.
  */
 export function hasClass(element, value) {
+  if (!element || !value) {
+    return false;
+  }
+
   return element.classList
     ? element.classList.contains(value)
     : element.className.indexOf(value) > -1;
@@ -162,7 +181,7 @@ export function hasClass(element, value) {
  * @param {string} value - The classes to be added.
  */
 export function addClass(element, value) {
-  if (!value) {
+  if (!element || !value) {
     return;
   }
 
@@ -193,7 +212,7 @@ export function addClass(element, value) {
  * @param {string} value - The classes to be removed.
  */
 export function removeClass(element, value) {
-  if (!value) {
+  if (!element || !value) {
     return;
   }
 
@@ -294,14 +313,14 @@ export function removeData(element, name) {
   if (isObject(element[name])) {
     try {
       delete element[name];
-    } catch (e) {
+    } catch (error) {
       element[name] = undefined;
     }
   } else if (element.dataset) {
     // #128 Safari not allows to delete dataset property
     try {
       delete element.dataset[name];
-    } catch (e) {
+    } catch (error) {
       element.dataset[name] = undefined;
     }
   } else {
@@ -309,11 +328,10 @@ export function removeData(element, name) {
   }
 }
 
-const REGEXP_SPACES = /\s\s*/;
 const onceSupported = (() => {
   let supported = false;
 
-  if (IN_BROWSER) {
+  if (IS_BROWSER) {
     let once = false;
     const listener = () => {};
     const options = Object.defineProperty({}, 'once', {
@@ -495,11 +513,11 @@ export function getTransforms({
  * @param {string} url - The target url.
  * @example
  * // picture.jpg
- * getImageNameFromURL('http://domain.com/path/to/picture.jpg?size=1280×960')
+ * getImageNameFromURL('https://domain.com/path/to/picture.jpg?size=1280×960')
  * @returns {string} A string contains the image name.
  */
 export function getImageNameFromURL(url) {
-  return isString(url) ? url.replace(/^.*\//, '').replace(/[?&#].*$/, '') : '';
+  return isString(url) ? decodeURIComponent(url.replace(/^.*\//, '').replace(/[?&#].*$/, '')) : '';
 }
 
 const IS_SAFARI = WINDOW.navigator && /(Macintosh|iPhone|iPod|iPad).*AppleWebKit/i.test(WINDOW.navigator.userAgent);
@@ -578,7 +596,7 @@ export function getResponsiveClass(type) {
  * @returns {number} The result ratio.
  */
 export function getMaxZoomRatio(pointers) {
-  const pointers2 = assign({}, pointers);
+  const pointers2 = { ...pointers };
   const ratios = [];
 
   forEach(pointers, (pointer, pointerId) => {
@@ -614,10 +632,12 @@ export function getPointer({ pageX, pageY }, endOnly) {
     endY: pageY,
   };
 
-  return endOnly ? end : assign({
+  return endOnly ? end : ({
+    timeStamp: Date.now(),
     startX: pageX,
     startY: pageY,
-  }, end);
+    ...end,
+  });
 }
 
 /**

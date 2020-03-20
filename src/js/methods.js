@@ -25,6 +25,7 @@ import {
   addListener,
   assign,
   dispatchEvent,
+  escapeHTMLEntities,
   forEach,
   getData,
   getOffset,
@@ -95,8 +96,7 @@ export default {
       addClass(viewer, CLASS_TRANSITION);
 
       // Force reflow to enable CSS3 transition
-      // eslint-disable-next-line
-      viewer.offsetWidth;
+      viewer.initialOffsetWidth = viewer.offsetWidth;
       addListener(viewer, EVENT_TRANSITION_END, shown, {
         once: true,
       });
@@ -145,13 +145,16 @@ export default {
 
     const { viewer } = this;
 
-    if (options.transition && !immediate) {
+    if (options.transition && hasClass(this.image, CLASS_TRANSITION) && !immediate) {
       const hidden = this.hidden.bind(this);
       const hide = () => {
-        addListener(viewer, EVENT_TRANSITION_END, hidden, {
-          once: true,
-        });
-        removeClass(viewer, CLASS_IN);
+        // XXX: It seems the `event.stopPropagation()` method does not work here
+        setTimeout(() => {
+          addListener(viewer, EVENT_TRANSITION_END, hidden, {
+            once: true,
+          });
+          removeClass(viewer, CLASS_IN);
+        }, 0);
       };
 
       this.transitioning = {
@@ -164,6 +167,7 @@ export default {
         },
       };
 
+      // Note that the `CLASS_TRANSITION` class will be removed on pointer down (#255)
       if (this.viewed) {
         addListener(this.image, EVENT_TRANSITION_END, hide, {
           once: true,
@@ -188,14 +192,14 @@ export default {
   view(index = this.options.initialViewIndex) {
     index = Number(index) || 0;
 
-    if (!this.isShown) {
-      this.index = index;
-      return this.show();
-    }
-
     if (this.hiding || this.played || index < 0 || index >= this.length
       || (this.viewed && index === this.index)) {
       return this;
+    }
+
+    if (!this.isShown) {
+      this.index = index;
+      return this.show();
     }
 
     if (this.viewing) {
@@ -257,9 +261,9 @@ export default {
       const { imageData } = this;
       const render = Array.isArray(options.title) ? options.title[1] : options.title;
 
-      title.innerHTML = isFunction(render)
+      title.innerHTML = escapeHTMLEntities(isFunction(render)
         ? render.call(this, image, imageData)
-        : `${alt} (${imageData.naturalWidth} × ${imageData.naturalHeight})`;
+        : `${alt} (${imageData.naturalWidth} × ${imageData.naturalHeight})`);
     };
     let onLoad;
 
@@ -278,6 +282,8 @@ export default {
             this.imageInitializing.abort();
           }
         } else {
+          // Cancel download to save bandwidth.
+          image.src = '';
           removeListener(image, EVENT_LOAD, onLoad);
 
           if (this.timeout) {
@@ -431,6 +437,14 @@ export default {
       pointers,
       imageData,
     } = this;
+    const {
+      width,
+      height,
+      left,
+      top,
+      naturalWidth,
+      naturalHeight,
+    } = imageData;
 
     ratio = Math.max(0, ratio);
 
@@ -446,9 +460,11 @@ export default {
         ratio = 1;
       }
 
-      const newWidth = imageData.naturalWidth * ratio;
-      const newHeight = imageData.naturalHeight * ratio;
-      const oldRatio = imageData.width / imageData.naturalWidth;
+      const newWidth = naturalWidth * ratio;
+      const newHeight = naturalHeight * ratio;
+      const offsetWidth = newWidth - width;
+      const offsetHeight = newHeight - height;
+      const oldRatio = width / naturalWidth;
 
       if (isFunction(options.zoom)) {
         addListener(element, EVENT_ZOOM, options.zoom, {
@@ -474,16 +490,12 @@ export default {
         };
 
         // Zoom from the triggering point of the event
-        imageData.left -= (newWidth - imageData.width) * (
-          ((center.pageX - offset.left) - imageData.left) / imageData.width
-        );
-        imageData.top -= (newHeight - imageData.height) * (
-          ((center.pageY - offset.top) - imageData.top) / imageData.height
-        );
+        imageData.left -= offsetWidth * (((center.pageX - offset.left) - left) / width);
+        imageData.top -= offsetHeight * (((center.pageY - offset.top) - top) / height);
       } else {
         // Zoom from the center of the image
-        imageData.left -= (newWidth - imageData.width) / 2;
-        imageData.top -= (newHeight - imageData.height) / 2;
+        imageData.left -= offsetWidth / 2;
+        imageData.top -= offsetHeight / 2;
       }
 
       imageData.width = newWidth;
@@ -804,8 +816,7 @@ export default {
         addClass(tooltipBox, CLASS_TRANSITION);
 
         // Force reflow to enable CSS3 transition
-        // eslint-disable-next-line
-        tooltipBox.offsetWidth;
+        tooltipBox.initialOffsetWidth = tooltipBox.offsetWidth;
         addClass(tooltipBox, CLASS_IN);
       } else {
         addClass(tooltipBox, CLASS_SHOW);
@@ -893,7 +904,7 @@ export default {
         const img = item.querySelector('img');
         const image = images[i];
 
-        if (image) {
+        if (image && img) {
           if (image.src !== img.src) {
             indexes.push(i);
           }

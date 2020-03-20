@@ -1,6 +1,6 @@
 # Viewer.js
 
-[![Build Status](https://travis-ci.org/fengyuanchen/viewerjs.svg)](https://travis-ci.org/fengyuanchen/viewerjs) [![Downloads](https://img.shields.io/npm/dm/viewerjs.svg)](https://www.npmjs.com/package/viewerjs) [![Version](https://img.shields.io/npm/v/viewerjs.svg)](https://www.npmjs.com/package/viewerjs) [![Donate on Patreon](https://img.shields.io/badge/donate-on%20patreon-fa7664.svg)](https://www.patreon.com/chenfengyuan)
+[![Build Status](https://img.shields.io/travis/fengyuanchen/viewerjs.svg)](https://travis-ci.org/fengyuanchen/viewerjs) [![Downloads](https://img.shields.io/npm/dm/viewerjs.svg)](https://www.npmjs.com/package/viewerjs) [![Version](https://img.shields.io/npm/v/viewerjs.svg)](https://www.npmjs.com/package/viewerjs)
 
 > JavaScript image viewer.
 
@@ -24,7 +24,7 @@
 
 ## Features
 
-- Supports 38 [options](#options)
+- Supports 42 [options](#options)
 - Supports 23 [methods](#methods)
 - Supports 9 [events](#events)
 - Supports modal and inline modes
@@ -56,12 +56,14 @@ dist/
 npm install viewerjs
 ```
 
-Include files:
+In browser:
 
 ```html
 <link  href="/path/to/viewer.css" rel="stylesheet">
 <script src="/path/to/viewer.js"></script>
 ```
+
+The [cdnjs](https://github.com/cdnjs/cdnjs) provides CDN support for Viewer.js's CSS and JavaScript. You can find the links [here](https://cdnjs.com/libraries/viewerjs).
 
 ### Usage
 
@@ -97,15 +99,22 @@ new Viewer(element[, options])
 ```
 
 ```js
-var viewer = new Viewer(document.getElementById('image'), {
+// You should import the CSS file.
+// import 'viewerjs/dist/viewer.css';
+import Viewer from 'viewerjs';
+
+// View an image
+const viewer = new Viewer(document.getElementById('image'), {
   inline: true,
-  viewed: function() {
+  viewed() {
     viewer.zoomTo(1);
-  }
+  },
 });
+// Then, show the image by click it, or call `viewer.show()`.
 
 // View a list of images
-var viewer = new Viewer(document.getElementById('images'));
+const gallery = new Viewer(document.getElementById('images'));
+// Then, show one image by click it, or call `gallery.show()`.
 ```
 
 ## Keyboard support
@@ -128,21 +137,12 @@ var viewer = new Viewer(document.getElementById('images'));
 You may set viewer options with `new Viewer(image, options)`.
 If you want to change the global default options, You may use `Viewer.setDefaults(options)`.
 
-### initialViewIndex
+### backdrop
 
-- Type: `Number`
-- Default: `0`
+- Type: `Boolean` or `String`
+- Default: `true`
 
-Define the initial index of image for viewing.
-
-> Also used as the default parameter value of the `view` method.
-
-### inline
-
-- Type: `Boolean`
-- Default: `false`
-
-Enable inline mode.
+Enable a modal backdrop, specify `static` for a backdrop which doesn't close the modal on click.
 
 ### button
 
@@ -184,7 +184,9 @@ Specify the visibility and the content of the title.
 For example, `title: 4` equals to:
 
 ```js
-title: [4, (image, imageData) => `${image.alt} (${imageData.naturalWidth} × ${imageData.naturalHeight})`]
+new Viewer(image, {
+  title: [4, (image, imageData) => `${image.alt} (${imageData.naturalWidth} × ${imageData.naturalHeight})`]
+});
 ```
 
 ### toolbar
@@ -209,65 +211,59 @@ Specify the visibility and layout of the toolbar its buttons.
 For example, `toolbar: 4` equals to:
 
 ```js
-toolbar: {
-  zoomIn: 4,
-  zoomOut: 4,
-  oneToOne: 4,
-  reset: 4,
-  prev: 4,
-  play: {
-    show: 4,
-    size: 'large',
+new Viewer(image, {
+  toolbar: {
+    zoomIn: 4,
+    zoomOut: 4,
+    oneToOne: 4,
+    reset: 4,
+    prev: 4,
+    play: {
+      show: 4,
+      size: 'large',
+    },
+    next: 4,
+    rotateLeft: 4,
+    rotateRight: 4,
+    flipHorizontal: 4,
+    flipVertical: 4,
   },
-  next: 4,
-  rotateLeft: 4,
-  rotateRight: 4,
-  flipHorizontal: 4,
-  flipVertical: 4,
-}
+});
 ```
 
-### tooltip
+### className
 
-- Type: `Boolean`
-- Default: `true`
+- Type: `String`
+- Default: `''`
 
-Show the tooltip with image ratio (percentage) when zoom in or zoom out.
+Custom class name(s) to add to the viewer's root element.
 
-### movable
+### container
 
-- Type: `Boolean`
-- Default: `true`
+- Type: `Element` or `String`
+- Default: `'body'`
+- An element or a valid selector for [Document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
 
-Enable to move the image.
+The container to put the viewer in modal mode.
 
-### zoomable
+> Only available when the `inline` option is set to `false`.
 
-- Type: `Boolean`
-- Default: `true`
+### filter
 
-Enable to zoom the image.
+- Type: `Function`
+- Default: `null`
 
-### rotatable
+Filter the images for viewing (should return `true` if the image is viewable).
 
-- Type: `Boolean`
-- Default: `true`
+For example:
 
-Enable to rotate the image.
-
-### scalable
-
-- Type: `Boolean`
-- Default: `true`
-
-Enable to scale the image.
-
-### transition
-
-- Type: `Boolean`
-- Default: `true`
-
-Enable CSS3 Transition for some special elements.
+```js
+new Viewer(image, {
+  filter(image) {
+    return image.complete;
+  },
+});
+```
 
 ### fullscreen
 
@@ -276,7 +272,30 @@ Enable CSS3 Transition for some special elements.
 
 Enable to request full screen when play.
 
-> Requires the browser supports [Full Screen API](http://caniuse.com/fullscreen).
+> Requires the browser supports [Full Screen API](https://caniuse.com/fullscreen).
+
+### initialViewIndex
+
+- Type: `Number`
+- Default: `0`
+
+Define the initial index of image for viewing.
+
+> Also used as the default parameter value of the `view` method.
+
+### inline
+
+- Type: `Boolean`
+- Default: `false`
+
+Enable inline mode.
+
+### interval
+
+- Type: `Number`
+- Default: `5000`
+
+The amount of time to delay between automatically cycling an image when playing.
 
 ### keyboard
 
@@ -284,13 +303,6 @@ Enable to request full screen when play.
 - Default: `true`
 
 Enable keyboard support.
-
-### backdrop
-
-- Type: `Boolean` or `String`
-- Default: `true`
-
-Enable a modal backdrop, specify `static` for a backdrop which doesn't close the modal on click.
 
 ### loading
 
@@ -307,13 +319,6 @@ Indicate if show a loading spinner when load image or not.
 Indicate if enable loop viewing or not.
 
 > If the current image is the last one, then the next one to view is the first one, and vice versa.
-
-### interval
-
-- Type: `Number`
-- Default: `5000`
-
-The amount of time to delay between automatically cycling an image when playing.
 
 ### minWidth
 
@@ -332,6 +337,94 @@ Define the minimum width of the viewer.
 Define the minimum height of the viewer.
 
 > Only available in inline mode (set the `inline` option to `true`).
+
+### movable
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to move the image.
+
+### rotatable
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to rotate the image.
+
+### scalable
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to scale the image.
+
+### zoomable
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to zoom the image.
+
+### zoomOnTouch
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to zoom the current image by dragging on the touch screen.
+
+### zoomOnWheel
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to zoom the image by wheeling mouse.
+
+### slideOnTouch
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable to slide to the next or previous image by swiping on the touch screen.
+
+### toggleOnDblclick
+
+- Type: `Boolean`
+- Default: `true`
+
+Indicate if toggle the image size between its natural size and initial size when double click on the image or not.
+
+In other words, call the [`toggle`](#toggle) method automatically when double click on the image.
+
+> Requires [`dblclick`](https://developer.mozilla.org/en-US/docs/Web/Events/dblclick) event support.
+
+### tooltip
+
+- Type: `Boolean`
+- Default: `true`
+
+Show the tooltip with image ratio (percentage) when zoom in or zoom out.
+
+### transition
+
+- Type: `Boolean`
+- Default: `true`
+
+Enable CSS3 Transition for some special elements.
+
+### zIndex
+
+- Type: `Number`
+- Default: `2015`
+
+Define the CSS `z-index` value of viewer in modal mode.
+
+### zIndexInline
+
+- Type: `Number`
+- Default: `0`
+
+Define the CSS `z-index` value of viewer in inline mode.
 
 ### zoomRatio
 
@@ -353,20 +446,6 @@ Define the min ratio of the image when zoom out.
 - Default: `100`
 
 Define the max ratio of the image when zoom in.
-
-### zIndex
-
-- Type: `Number`
-- Default: `2015`
-
-Define the CSS `z-index` value of viewer in modal mode.
-
-### zIndexInline
-
-- Type: `Number`
-- Default: `0`
-
-Define the CSS `z-index` value of viewer in inline mode.
 
 ### url
 
@@ -391,44 +470,6 @@ new Viewer(image, {
   },
 });
 ```
-
-### container
-
-- Type: `Element` or `String`
-- Default: `'body'`
-- An element or a valid selector for [Document.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
-
-The container to put the viewer in modal mode.
-
-> Only available when the `inline` option is set to `false`.
-
-### filter
-
-- Type: `Function`
-- Default: `null`
-
-Filter the images for viewing (should return `true` if the image is viewable).
-
-For example:
-
-```js
-new Viewer(images, {
-  filter(image) {
-    return image.complete;
-  },
-});
-```
-
-### toggleOnDblclick
-
-- Type: `Boolean`
-- Default: `true`
-
-Indicate if toggle the image size between its natural size and initial size when double click on the image or not.
-
-In other words, call the [`toggle`](#toggle) method automatically when double click on the image.
-
-> Requires [`dblclick`](https://developer.mozilla.org/en-US/docs/Web/Events/dblclick) event support.
 
 ### ready
 
@@ -503,13 +544,13 @@ As there are some **asynchronous** processes when start the viewer, you should c
 
 ```js
 new Viewer(image, {
-  ready: function () {
+  ready() {
     // 2 methods are available here: "show" and "destroy".
   },
-  shown: function () {
+  shown() {
     // 9 methods are available here: "hide", "view", "prev", "next", "play", "stop", "full", "exit" and "destroy".
   },
-  viewed: function () {
+  viewed() {
     // All methods are available here except "show".
     this.viewer.zoomTo(1).rotateTo(180);
   }
@@ -774,14 +815,13 @@ All events can access the viewer instance with `this.viewer` in its handler.
 
 > Be careful to use these events in other component which has the same event names, e.g.: [Bootstrap](https://getbootstrap.com/)'s modal.
 
-
 ```js
-var viewer;
+let viewer;
 
 image.addEventListener('viewed', function () {
   console.log(this.viewer === viewer);
-  // -> true
-}, false);
+  // > true
+});
 
 viewer = new Viewer(image);
 ```
@@ -894,6 +934,6 @@ Maintained under the [Semantic Versioning guidelines](https://semver.org/).
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT) © [Chen Fengyuan](https://chenfengyuan.com)
+[MIT](https://opensource.org/licenses/MIT) © [Chen Fengyuan](https://chenfengyuan.com/)
 
 [⬆ back to top](#table-of-contents)

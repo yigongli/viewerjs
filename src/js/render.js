@@ -66,7 +66,10 @@ export default {
     const { element, options, list } = this;
     const items = [];
 
-    forEach(this.images, (image, i) => {
+    // initList may be called in this.update, so should keep idempotent
+    list.innerHTML = '';
+
+    forEach(this.images, (image, index) => {
       const { src } = image;
       const alt = image.alt || getImageNameFromURL(src);
       let { url } = options;
@@ -78,22 +81,24 @@ export default {
       }
 
       if (src || url) {
-        items.push('<li>'
-          + '<img'
-            + ` src="${src || url}"`
-            + ' role="button"'
-            + ' data-viewer-action="view"'
-            + ` data-index="${i}"`
-            + ` data-original-url="${url || src}"`
-            + ` alt="${alt}"`
-          + '>'
-        + '</li>');
+        const item = document.createElement('li');
+        const img = document.createElement('img');
+
+        img.src = src || url;
+        img.alt = alt;
+        img.setAttribute('data-index', index);
+        img.setAttribute('data-original-url', url || src);
+        img.setAttribute('data-viewer-action', 'view');
+        img.setAttribute('role', 'button');
+        item.appendChild(img);
+        list.appendChild(item);
+        items.push(item);
       }
     });
 
-    list.innerHTML = items.join('');
-    this.items = list.getElementsByTagName('li');
-    forEach(this.items, (item) => {
+    this.items = items;
+
+    forEach(items, (item) => {
       const image = item.firstElementChild;
 
       setData(image, 'filled', true);
@@ -214,6 +219,8 @@ export default {
     setStyle(image, assign({
       width: imageData.width,
       height: imageData.height,
+
+      // XXX: Not to use translateX/Y to avoid image shaking when zooming
       marginLeft: imageData.left,
       marginTop: imageData.top,
     }, getTransforms(imageData)));

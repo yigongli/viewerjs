@@ -18,6 +18,7 @@ import {
   EVENT_LOAD,
   EVENT_READY,
   NAMESPACE,
+  REGEXP_SPACES,
   WINDOW,
 } from './constants';
 import {
@@ -58,6 +59,7 @@ class Viewer {
     this.fading = false;
     this.fulled = false;
     this.hiding = false;
+    this.imageClicked = false;
     this.imageData = {};
     this.index = this.options.initialViewIndex;
     this.isImg = false;
@@ -98,10 +100,6 @@ class Viewer {
         images.push(image);
       }
     });
-
-    if (!images.length) {
-      return;
-    }
 
     this.isImg = isImg;
     this.length = images.length;
@@ -163,7 +161,8 @@ class Viewer {
       });
     } else {
       addListener(element, EVENT_CLICK, (this.onStart = ({ target }) => {
-        if (target.tagName.toLowerCase() === 'img') {
+        if (target.tagName.toLowerCase() === 'img'
+          && (!isFunction(options.filter) || options.filter.call(this, target))) {
           this.view(this.images.indexOf(target));
         }
       }));
@@ -209,9 +208,16 @@ class Viewer {
     if (options.backdrop) {
       addClass(viewer, `${NAMESPACE}-backdrop`);
 
-      if (!options.inline && options.backdrop === true) {
+      if (!options.inline && options.backdrop !== 'static') {
         setData(canvas, DATA_ACTION, 'hide');
       }
+    }
+
+    if (isString(options.className) && options.className) {
+      // In case there are multiple class names
+      options.className.split(REGEXP_SPACES).forEach((className) => {
+        addClass(viewer, className);
+      });
     }
 
     if (options.toolbar) {

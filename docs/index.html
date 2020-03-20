@@ -7,7 +7,7 @@
   <meta name="description" content="JavaScript image viewer.">
   <meta name="author" content="Chen Fengyuan">
   <title>Viewer.js</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="css/viewer.css">
   <link rel="stylesheet" href="css/main.css">
 </head>
@@ -17,7 +17,7 @@
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
-    You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+    You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.
   </div>
   <![endif]-->
 
@@ -29,12 +29,31 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbar-collapse" role="navigation">
-        <nav class="nav navbar-nav">
-          <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs/blob/master/README.md" data-toggle="tooltip" title="View the documentation">Docs</a>
-          <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs" data-toggle="tooltip" title="View the GitHub project">GitHub</a>
-          <a class="nav-link" href="https://fengyuanchen.github.io" data-toggle="tooltip" title="More projects">More</a>
-          <a class="nav-link" href="https://chenfengyuan.com" data-toggle="tooltip" title="About the author">About</a>
-        </nav>
+        <ul class="nav navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs/blob/master/README.md" data-toggle="tooltip" title="View the documentation">Docs</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Examples
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="examples/custom-title.html">Custom title</a>
+              <a class="dropdown-item" href="examples/custom-toolbar.html">Custom toolbar</a>
+              <a class="dropdown-item" href="examples/dynamic-viewer.html">Dynamic Viewer</a>
+              <a class="dropdown-item" href="examples/viewer-in-modal.html">Viewer in modal</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs" data-toggle="tooltip" title="View the GitHub project">GitHub</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://fengyuanchen.github.io/" data-toggle="tooltip" title="Explore more projects">Explore</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://chenfengyuan.com/" data-toggle="tooltip" title="About the author">About</a>
+          </li>
+        </ul>
       </div>
     </div>
   </header>
@@ -44,12 +63,12 @@
     <div class="container">
       <div class="row">
         <div class="col-md">
-          <h1>Viewer.js <small class="h6">v1.2.0</small></h1>
+          <h1>Viewer.js <small class="h6">v1.5.0</small></h1>
           <p class="lead">JavaScript image viewer.</p>
         </div>
         <div class="col-md">
           <div class="carbonads">
-            <script id="_carbonads_js" src="//cdn.carbonads.com/carbon.js?serve=CKYI55Q7&placement=fengyuanchengithubio" async></script>
+            <script id="_carbonads_js" src="https://cdn.carbonads.com/carbon.js?serve=CKYI55Q7&placement=fengyuanchengithubio" async></script>
           </div>
         </div>
       </div>
@@ -73,9 +92,15 @@
               <input type="radio" class="sr-only" name="inline" data-value="true" autocomplete="off"> Inline mode
             </label>
           </div>
-          <button class="btn btn-primary btn-block d-md-none" id="toggle-options" data-target="#options" data-toggle="collapse" aria-expanded="true">Toggle options</button>
-          <div class="docs-collapse collapse d-md-block" id="options" aria-labelledby="toggle-options">
+          <button class="btn btn-primary btn-block mb-3 d-md-none" id="toggle-options" data-target="#options" data-toggle="collapse" aria-expanded="true">Toggle options</button>
+          <div class="docs-collapse collapse d-md-block mb-3" id="options" aria-labelledby="toggle-options">
             <ul class="list-group">
+              <li class="list-group-item">
+                <div class="form-check">
+                  <input class="form-check-input" id="backdrop" type="checkbox" name="backdrop" checked>
+                  <label for="backdrop" class="form-check-label">backdrop</label>
+                </div>
+              </li>
               <li class="list-group-item">
                 <div class="form-check">
                   <input class="form-check-input" id="button" type="checkbox" name="button" checked>
@@ -84,26 +109,26 @@
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="navbar" type="checkbox" name="navbar" checked>
-                  <label for="navbar" class="form-check-label">navbar</label>
+                  <input class="form-check-input" id="fullscreen" type="checkbox" name="fullscreen" checked>
+                  <label for="fullscreen" class="form-check-label">fullscreen</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="title" type="checkbox" name="title" checked>
-                  <label for="title" class="form-check-label">title</label>
+                  <input class="form-check-input" id="loading" type="checkbox" name="loading" checked>
+                  <label for="loading" class="form-check-label">loading</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="toolbar" type="checkbox" name="toolbar" checked>
-                  <label for="toolbar" class="form-check-label">toolbar</label>
+                  <input class="form-check-input" id="loop" type="checkbox" name="loop" checked>
+                  <label for="loop" class="form-check-label">loop</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="tooltip" type="checkbox" name="tooltip" checked>
-                  <label for="tooltip" class="form-check-label">tooltip</label>
+                  <input class="form-check-input" id="keyboard" type="checkbox" name="keyboard" checked>
+                  <label for="keyboard" class="form-check-label">keyboard</label>
                 </div>
               </li>
               <li class="list-group-item">
@@ -114,8 +139,8 @@
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="zoomable" type="checkbox" name="zoomable" checked>
-                  <label for="zoomable" class="form-check-label">zoomable</label>
+                  <input class="form-check-input" id="navbar" type="checkbox" name="navbar" checked>
+                  <label for="navbar" class="form-check-label">navbar</label>
                 </div>
               </li>
               <li class="list-group-item">
@@ -132,38 +157,56 @@
               </li>
               <li class="list-group-item">
                 <div class="form-check">
+                  <input class="form-check-input" id="slideOnTouch" type="checkbox" name="slideOnTouch" checked>
+                  <label for="slideOnTouch" class="form-check-label">slideOnTouch</label>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="form-check">
+                  <input class="form-check-input" id="title" type="checkbox" name="title" checked>
+                  <label for="title" class="form-check-label">title</label>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="form-check">
+                  <input class="form-check-input" id="toggleOnDblclick" type="checkbox" name="toggleOnDblclick" checked>
+                  <label for="toggleOnDblclick" class="form-check-label">toggleOnDblclick</label>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="form-check">
+                  <input class="form-check-input" id="toolbar" type="checkbox" name="toolbar" checked>
+                  <label for="toolbar" class="form-check-label">toolbar</label>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="form-check">
+                  <input class="form-check-input" id="tooltip" type="checkbox" name="tooltip" checked>
+                  <label for="tooltip" class="form-check-label">tooltip</label>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="form-check">
                   <input class="form-check-input" id="transition" type="checkbox" name="transition" checked>
                   <label for="transition" class="form-check-label">transition</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="fullscreen" type="checkbox" name="fullscreen" checked>
-                  <label for="fullscreen" class="form-check-label">fullscreen</label>
+                  <input class="form-check-input" id="zoomable" type="checkbox" name="zoomable" checked>
+                  <label for="zoomable" class="form-check-label">zoomable</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="keyboard" type="checkbox" name="keyboard" checked>
-                  <label for="keyboard" class="form-check-label">keyboard</label>
+                  <input class="form-check-input" id="zoomOnTouch" type="checkbox" name="zoomOnTouch" checked>
+                  <label for="zoomOnTouch" class="form-check-label">zoomOnTouch</label>
                 </div>
               </li>
               <li class="list-group-item">
                 <div class="form-check">
-                  <input class="form-check-input" id="backdrop" type="checkbox" name="backdrop" checked>
-                  <label for="backdrop" class="form-check-label">backdrop</label>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="form-check">
-                  <input class="form-check-input" id="loop" type="checkbox" name="loop" checked>
-                  <label for="loop" class="form-check-label">loop</label>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="form-check">
-                  <input class="form-check-input" id="loading" type="checkbox" name="loading" checked>
-                  <label for="loading" class="form-check-label">loading</label>
+                  <input class="form-check-input" id="zoomOnWheel" type="checkbox" name="zoomOnWheel" checked>
+                  <label for="zoomOnWheel" class="form-check-label">zoomOnWheel</label>
                 </div>
               </li>
             </ul>
@@ -173,7 +216,7 @@
       <div class="col-sm-8 col-md-6">
         <h3>Demo</h3>
         <hr>
-        <div class="docs-galley">
+        <div class="docs-galley mb-3">
           <ul class="docs-pictures clearfix">
             <li><img data-original="images/tibet-1.jpg" src="images/thumbnails/tibet-1.jpg" alt="Cuo Na Lake"></li>
             <li><img data-original="images/tibet-2.jpg" src="images/thumbnails/tibet-2.jpg" alt="Tibetan Plateau"></li>
@@ -268,17 +311,16 @@
       <nav class="nav flex-wrap justify-content-center mb-3">
         <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs">GitHub</a>
         <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs/releases">Releases</a>
-        <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs/blob/master/examples">Examples</a>
         <a class="nav-link" href="https://github.com/fengyuanchen/viewerjs/blob/master/LICENSE">License</a>
-        <a class="nav-link" href="https://chenfengyuan.com">About</a>
+        <a class="nav-link" href="https://chenfengyuan.com/">About</a>
       </nav>
     </div>
   </footer>
 
   <!-- Scripts -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.bundle.min.js"></script>
-  <script src="https://fengyuanchen.github.io/js/common.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="https://fengyuanchen.github.io/shared/google-analytics.js" crossorigin="anonymous"></script>
   <script src="js/viewer.js"></script>
   <script src="js/main.js"></script>
 </body>
